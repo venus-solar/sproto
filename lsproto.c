@@ -12,6 +12,11 @@
 #define ENCODE_MAXSIZE 0x1000000
 #define ENCODE_DEEPLEVEL 64
 
+#ifdef _WIN32
+__declspec(dllexport) int luaopen_lpeg (lua_State *L);
+#endif
+
+
 #ifndef luaL_newlib /* using LuaJIT */
 /*
 ** set functions from list 'l' into table at top - 'nup'; each
