@@ -13,7 +13,7 @@
 #define ENCODE_DEEPLEVEL 64
 
 #ifdef _WIN32
-__declspec(dllexport) int luaopen_lpeg (lua_State *L);
+__declspec(dllexport) int luaopen_sproto_core(lua_State *L);
 #endif
 
 
