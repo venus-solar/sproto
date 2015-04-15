@@ -1,0 +1,36 @@
+﻿Build started 2015/3/18 11:21:57.
+     1>Project "D:\htang\Projects2\sproto\sproto\sproto.vcxproj" on node 2 (Build target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _WINDOWS /D _USRDLL /D SPROTO_EXPORTS /D _WINDLL /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TC /analyze- /errorReport:prompt ..\lsproto.c ..\sproto.c
+         sproto.c
+     1>d:\htang\projects2\sproto\sproto.c(100): warning C4018: '>' : signed/unsigned mismatch
+     1>d:\htang\projects2\sproto\sproto.c(149): warning C4018: '<' : signed/unsigned mismatch
+     1>d:\htang\projects2\sproto\sproto.c(952): warning C4018: '>' : signed/unsigned mismatch
+     1>d:\htang\projects2\sproto\sproto.c(992): warning C4018: '<' : signed/unsigned mismatch
+     1>d:\htang\projects2\sproto\sproto.c(1002): warning C4018: '<' : signed/unsigned mismatch
+     1>d:\htang\projects2\sproto\sproto.c(1017): warning C4018: '<' : signed/unsigned mismatch
+     1>d:\htang\projects2\sproto\sproto.c(1074): warning C4018: '<' : signed/unsigned mismatch
+         lsproto.c
+     1>d:\htang\projects2\sproto\lsproto.c(54): warning C4244: '=' : conversion from 'lua_Integer' to 'size_t', possible loss of data
+     1>d:\htang\projects2\sproto\lsproto.c(176): warning C4018: '>' : signed/unsigned mismatch
+     1>d:\htang\projects2\sproto\lsproto.c(231): warning C4244: 'initializing' : conversion from 'lua_Integer' to 'int', possible loss of data
+     1>d:\htang\projects2\sproto\lsproto.c(301): warning C4244: 'initializing' : conversion from 'uint64_t' to 'int', possible loss of data
+     1>d:\htang\projects2\sproto\lsproto.c(376): warning C4244: '=' : conversion from 'lua_Integer' to 'size_t', possible loss of data
+     1>d:\htang\projects2\sproto\lsproto.c(442): warning C4244: 'initializing' : conversion from 'lua_Integer' to 'int', possible loss of data
+     1>d:\htang\projects2\sproto\lsproto.c(443): warning C4018: '<' : signed/unsigned mismatch
+     1>d:\htang\projects2\sproto\lsproto.c(447): warning C4018: '>' : signed/unsigned mismatch
+     1>d:\htang\projects2\sproto\lsproto.c(460): warning C4244: 'initializing' : conversion from 'lua_Integer' to 'int', possible loss of data
+     1>d:\htang\projects2\sproto\lsproto.c(495): warning C4244: '=' : conversion from 'lua_Integer' to 'int', possible loss of data
+     1>d:\htang\projects2\sproto\lsproto.c(534): warning C4244: 'initializing' : conversion from 'lua_Integer' to 'int', possible loss of data
+     1>d:\htang\projects2\sproto\lsproto.c(552): warning C4244: 'initializing' : conversion from 'lua_Integer' to 'int', possible loss of data
+         Generating Code...
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"D:\htang\Projects2\sproto\sproto\Debug\sproto.dll" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:\htang\Projects2\sproto\sproto\Debug\sproto.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\htang\Projects2\sproto\sproto\Debug\sproto.lib" /MACHINE:X86 /DLL Debug\lsproto.obj
+         Debug\sproto.obj
+         "..\..\lua-5.3.0\src\lua53.lib"
+         sproto.vcxproj -> D:\htang\Projects2\sproto\sproto\Debug\sproto.dll
+     1>Done Building Project "D:\htang\Projects2\sproto\sproto\sproto.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:01.51
