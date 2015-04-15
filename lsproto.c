@@ -44,17 +44,18 @@ LUALIB_API void luaL_setfuncs (lua_State *L, const luaL_Reg *l, int nup) {
 #define luaL_newlib(L,l)  (luaL_newlibtable(L,l), luaL_setfuncs(L,l,0))
 #endif
 
+#if LUA_VERSION_NUM < 503
+
+// lua_isinteger is lua 5.3 api
+#define lua_isinteger lua_isnumber
+
+#endif
+
 static int
 lnewproto(lua_State *L) {
-	size_t sz = 0;
-	void * buffer;
 	struct sproto * sp;
-	if (lua_isuserdata(L,1)) {
-		buffer = lua_touserdata(L,1);
-		sz = luaL_checkinteger(L,2);
-	} else {
-		buffer = (void *)luaL_checklstring(L,1,&sz);
-	}
+	size_t sz;
+	void * buffer = (void *)luaL_checklstring(L,1,&sz);
 	sp = sproto_create(buffer, sz);
 	if (sp) {
 		lua_pushlightuserdata(L, sp);
@@ -119,6 +120,10 @@ encode(const struct sproto_arg *args) {
 				self->array_index = 0;
 				return 0;
 			}
+			if (!lua_istable(L, -1)) {
+				return luaL_error(L, ".*%s(%d) should be a table (Is a %s)",
+					args->tagname, args->index, lua_typename(L, lua_type(L, -1)));
+			}
 			if (self->array_index) {
 				lua_replace(L, self->array_index);
 			} else {
@@ -150,8 +155,14 @@ encode(const struct sproto_arg *args) {
 	}
 	switch (args->type) {
 	case SPROTO_TINTEGER: {
-		lua_Integer v = luaL_checkinteger(L, -1);
+		lua_Integer v;
 		lua_Integer vh;
+		if (!lua_isinteger(L, -1)) {
+			return luaL_error(L, ".%s[%d] is not an integer (Is a %s)", 
+				args->tagname, args->index, lua_typename(L, lua_type(L, -1)));
+		} else {
+			v = lua_tointeger(L, -1);
+		}
 		lua_pop(L,1);
 		// notice: in lua 5.2, lua_Integer maybe 52bit
 		vh = v >> 31;
@@ -166,26 +177,40 @@ encode(const struct sproto_arg *args) {
 	}
 	case SPROTO_TBOOLEAN: {
 		int v = lua_toboolean(L, -1);
+		if (!lua_isboolean(L,-1)) {
+			return luaL_error(L, ".%s[%d] is not a boolean (Is a %s)",
+				args->tagname, args->index, lua_typename(L, lua_type(L, -1)));
+		}
 		*(int *)args->value = v;
 		lua_pop(L,1);
 		return 4;
 	}
 	case SPROTO_TSTRING: {
 		size_t sz = 0;
-		const char * str = luaL_checklstring(L, -1, &sz);
+		const char * str;
+		if (!lua_isstring(L, -1)) {
+			return luaL_error(L, ".%s[%d] is not a string (Is a %s)", 
+				args->tagname, args->index, lua_typename(L, lua_type(L, -1)));
+		} else {
+			str = lua_tolstring(L, -1, &sz);
+		}
 		if (sz > args->length)
 			return -1;
 		memcpy(args->value, str, sz);
 		lua_pop(L,1);
-		return sz;
+		return sz + 1;	// The length of empty string is 1.
 	}
 	case SPROTO_TSTRUCT: {
 		struct encode_ud sub;
 		int r;
 		int top = lua_gettop(L);
+		if (!lua_istable(L, top)) {
+			return luaL_error(L, ".%s[%d] is not a table (Is a %s)", 
+				args->tagname, args->index, lua_typename(L, lua_type(L, -1)));
+		}
 		sub.L = L;
 		sub.st = args->subtype;
-		sub.tbl_index = lua_gettop(L);
+		sub.tbl_index = top;
 		sub.array_tag = NULL;
 		sub.array_index = 0;
 		sub.deep = self->deep + 1;
@@ -519,48 +544,38 @@ lprotocol(lua_State *L) {
 	return 3;
 }
 
-/* global sproto pointer for multi states */
-struct sproto_bin {
-	void *ptr;
-	size_t sz;
-};
-
-static struct sproto_bin G_sproto[MAX_GLOBALSPROTO];
+/* global sproto pointer for multi states
+   NOTICE : It is not thread safe
+ */
+static struct sproto * G_sproto[MAX_GLOBALSPROTO];
 
 static int
 lsaveproto(lua_State *L) {
-	size_t sz;
-	void * buffer = (void *)luaL_checklstring(L,1,&sz);
+	struct sproto * sp = lua_touserdata(L, 1);
 	int index = luaL_optinteger(L, 2, 0);
-	void * tmp;
-	struct sproto_bin * sbin = &G_sproto[index];
 	if (index < 0 || index >= MAX_GLOBALSPROTO) {
 		return luaL_error(L, "Invalid global slot index %d", index);
 	}
-	tmp = malloc(sz);
-	memcpy(tmp, buffer, sz);
-	if (sbin->ptr) {
-		free(sbin->ptr);
-	}
-	sbin->ptr = tmp;
-	sbin->sz = sz;
+	/* TODO : release old object (memory leak now, but thread safe)*/
+	G_sproto[index] = sp;
 	return 0;
 }
 
 static int
 lloadproto(lua_State *L) {
 	int index = luaL_optinteger(L, 1, 0);
-	struct sproto_bin * sbin = &G_sproto[index];
+	struct sproto * sp;
 	if (index < 0 || index >= MAX_GLOBALSPROTO) {
 		return luaL_error(L, "Invalid global slot index %d", index);
 	}
-	if (sbin->ptr == NULL) {
+	sp = G_sproto[index];
+	if (sp == NULL) {
 		return luaL_error(L, "nil sproto at index %d", index);
 	}
 
-	lua_pushlightuserdata(L, sbin->ptr);
-	lua_pushinteger(L, sbin->sz);
-	return 2;
+	lua_pushlightuserdata(L, sp);
+
+	return 1;
 }
 
 int
